@@ -1,6 +1,6 @@
 PREFIX  := /usr/local
 CC      := cc
-CFLAGS  := -pedantic -Wall -Wno-deprecated-declarations -Os
+CFLAGS  := -pedantic -Wall -Wno-deprecated-declarations -Os -O0 -g3
 LDFLAGS := -lX11
 
 # FreeBSD (uncomment)
@@ -23,7 +23,7 @@ blocks.h:
 	cp blocks.def.h $@
 
 clean:
-	rm -f *.o *.gch dwmblocks
+	rm -f *.o *.gch dwmblocks blocks.h
 
 install: dwmblocks
 	mkdir -p ${DESTDIR}${PREFIX}/bin

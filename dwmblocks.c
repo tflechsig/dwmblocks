@@ -58,8 +58,8 @@ static int statusContinue = 1;
 //opens process *cmd and stores output in *output
 void getcmd(const Block *block, char *output)
 {
-	if (block->signal)
-		*output++ = block->signal;
+  if (block->signal)
+    *output++ = block->signal;
 	strcpy(output, block->icon);
 	FILE *cmdf = popen(block->command, "r");
 	if (!cmdf)
@@ -73,33 +73,36 @@ void getcmd(const Block *block, char *output)
 		return;
 	}
 	//only chop off newline if one is present at the end
-	i = output[i-1] == '\n' ? i-1 : i;
-	if (delim[0] != '\0') {
-		strncpy(output+i, delim, delimLen); 
-	}
-	else
-		output[i++] = '\0';
+  i = output[i-1] == '\n' ? i-1 : i;
+  char end_n_delim[delimLen+1];
+  if (delim[0] != '\0') {
+    strcpy(end_n_delim, block_end);
+    strcat(end_n_delim, delim);
+    strncpy(output+i, end_n_delim, delimLen+1); 
+  }
+  else
+    output[i++] = '\0';
 	pclose(cmdf);
 }
 
 void getcmds(int time)
 {
-	const Block* current;
-	for (unsigned int i = 0; i < LENGTH(blocks); i++) {
-		current = blocks + i;
-		if ((current->interval != 0 && time % current->interval == 0) || time == -1)
-			getcmd(current,statusbar[i]);
-	}
+  const Block* current;
+  for (unsigned int i = 0; i < LENGTH(blocks); i++) {
+  	current = blocks + i;
+  	if ((current->interval != 0 && time % current->interval == 0) || time == -1)
+  		getcmd(current,statusbar[i]);
+  }
 }
 
 void getsigcmds(unsigned int signal)
 {
-	const Block *current;
-	for (unsigned int i = 0; i < LENGTH(blocks); i++) {
-		current = blocks + i;
-		if (current->signal == signal)
-			getcmd(current,statusbar[i]);
-	}
+ 	const Block *current;
+ 	for (unsigned int i = 0; i < LENGTH(blocks); i++) {
+ 		current = blocks + i;
+ 		if (current->signal == signal)
+ 			getcmd(current,statusbar[i]);
+ 	}
 }
 
 void setupsignals()
@@ -126,7 +129,7 @@ int getstatus(char *str, char *last)
 	str[0] = '\0';
 	for (unsigned int i = 0; i < LENGTH(blocks); i++)
 		strcat(str, statusbar[i]);
-	str[strlen(str)-strlen(delim)] = '\0';
+	str[strlen(str)-strlen(delim)-strlen(block_end)] = '\0';
 	return strcmp(str, last);//0 if they are the same
 }
 
@@ -135,7 +138,7 @@ void setroot()
 {
 	if (!getstatus(statusstr[0], statusstr[1]))//Only set root if text has changed.
 		return;
-	XStoreName(dpy, root, statusstr[0]);
+  XStoreName(dpy, root, statusstr[0]);
 	XFlush(dpy);
 }
 
@@ -187,25 +190,25 @@ void sighandler(int signum, siginfo_t *si, void *ucontext)
 {
 	if (si->si_value.sival_int) {
 		pid_t parent = getpid();
-		if (fork() == 0) {
-#ifndef NO_X
-			if (dpy)
-				close(ConnectionNumber(dpy));
-#endif
-			int i;
-			for (i = 0; i < LENGTH(blocks) && blocks[i].signal != signum-SIGRTMIN; i++);
-
-			char shcmd[1024];
-			sprintf(shcmd, "%s; kill -%d %d", blocks[i].command, SIGRTMIN+blocks[i].signal, parent);
-			char *cmd[] = { "/bin/sh", "-c", shcmd, NULL };
-			char button[2] = { '0' + si->si_value.sival_int, '\0' };
-			setenv("BUTTON", button, 1);
-			setsid();
-			execvp(cmd[0], cmd);
-			perror(cmd[0]);
-			exit(EXIT_SUCCESS);
-		}
-	} else {
+ 		if (fork() == 0) {
+ #ifndef NO_X
+ 			if (dpy)
+ 				close(ConnectionNumber(dpy));
+ #endif
+ 			int i;
+ 			for (i = 0; i < LENGTH(blocks) && blocks[i].signal != signum-SIGRTMIN; i++);
+       
+ 			char shcmd[1024];
+ 			sprintf(shcmd, "%s; kill -%d %d", blocks[i].command, SIGRTMIN+blocks[i].signal, parent);
+ 			char *cmd[] = { "/bin/sh", "-c", shcmd, NULL };
+ 			char button[2] = { '0' + si->si_value.sival_int, '\0' };
+ 			setenv("BUTTON", button, 1);
+ 			setsid();
+ 			execvp(cmd[0], cmd);
+ 			perror(cmd[0]);
+ 			exit(EXIT_SUCCESS);
+ 		}
+ 	} else {
 		getsigcmds(signum-SIGPLUS);
 		writestatus();
 	}
