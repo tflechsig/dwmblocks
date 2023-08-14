@@ -3,8 +3,7 @@ static const Block blocks[] = {
 	/*Icon*/	/*Command*/		/*Update Interval*/	/*Update Signal*/
 	{"" , "date '+%b %d (%a) %I:%M%p'"    , 60,   0},
 	{"" , "source ~/.config/dwm/dwmblocks/statusbar_volume.sh"  ,  0,   9},
-	{"" , "source ~/.config/dwm/dwmblocks/statusbar_network.sh" ,  0,  10},
-	{"" , "source ~/.config/dwm/dwmblocks/statusbar_power.sh"   ,  0,  11},
+	{"" , "source ~/.config/dwm/dwmblocks/statusbar_power.sh"   ,  0,  10},
 };
 
 //end of block
