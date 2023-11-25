@@ -1,3 +1,6 @@
+
+![DWM Blocks Bar](/dwmblocks_bar.png)
+
 # dwmblocks
 Modular status bar for dwm written in c.
 # usage
