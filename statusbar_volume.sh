@@ -4,4 +4,6 @@ case $BUTTON in
   1) pavucontrol
 esac
 
-echo "Vol"
+current_vol=$(awk -F"[][]" '/dB/ { print $2 }' <(amixer sget Master))
+
+echo " $current_vol"
